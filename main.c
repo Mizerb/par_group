@@ -129,7 +129,5 @@ int main(int argc,  char* argv[])
     /*  */
     Write_Out_Matrix();
     
-    
-    
-    
+    return EXIT_SUCCESS;
 }
