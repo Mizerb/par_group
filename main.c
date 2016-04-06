@@ -8,6 +8,14 @@
  * Ben Mizera
  * Chris Chappell
  * Trenton Baldrey 
+ * 
+ * OR in order of last name:
+ * 
+ * Trenton Baldrey
+ * Aaron Brooks
+ * Chris Chappell
+ * Ben Mizera
+ * 
  */
 
 
@@ -16,10 +24,6 @@
 #include <string.h>
 #include <mpi.h>
 #include <pthread.h>
-
-#include "Generation.h"
-#include "Calculation.h"
-#include "Documentation.h"
 
 typedef struct
 {
@@ -32,6 +36,10 @@ typedef struct
     pthread
 } program_info;
 
+
+#include "Generation.h"
+#include "Calculation.h"
+#include "Documentation.h"
 
 /* TODO: macro for taking x,y coords and fetching matrix location */
 
@@ -101,9 +109,9 @@ int main(int argc,  char* argv[])
     /* set up pthread pool and allocate matrix */
     
     
+    // change to Generate_Matrix(&inf) ?? does that add clarity?
     
-    
-    inf.matrix_data = Generate_Matrix(matrix_size, matrix_slice_height);
+    inf.matrix_data = Generate_Matrix(inf);
     
     
     
