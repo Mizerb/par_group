@@ -3,6 +3,4 @@
 #include <mpi.h>
 
 
-void Write_Out_Matrix();
-
-FILE* Create_Buffer_File();
+void Write_Out_Matrix(int * matrix_data, int mpi_rank, matrix_size , matrix_slice_height, int mode);

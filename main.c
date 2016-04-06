@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include<string.h>
+#include <string.h>
 #include <mpi.h>
 
 #include "Generation.h"
@@ -72,5 +72,5 @@ int main(int argc, const char* argc)
     Add_Matrix();
      
     /*  */
-    Write_Out_Matrix();
+    Write_Out_Matrix(matrix_data , mpi_rank, matrix_size, matrix_slice_height);
 }
