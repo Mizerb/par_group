@@ -31,10 +31,6 @@
 #include "calculation.h"
 #include "documentation.h"
 
-/* TODO: macro for taking x,y coords and fetching matrix location */
-
-/* TODO: macro for getting the current absolute position in matrix*/
-
 program_info grab_args(int argc, char** argv)
 {
     
@@ -97,13 +93,11 @@ int main(int argc,  char* argv[])
     inf = grab_args(argc, argv);
 
     /* set up pthread pool and allocate matrix */
+    inf.matrix_data = Generate_Matrix( inf.matrix_size, inf.matrix_slice_height );
     
+    run_threadpool( &tpool_initialize_matrix, &inf, inf->pthreads_per_mpi );
     
-    // change to Generate_Matrix(&inf) ?? does that add clarity?
-    
-    inf.matrix_data = Generate_Matrix(inf);
-    
-    
+
     
     /* MPI send */
     
