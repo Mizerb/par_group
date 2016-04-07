@@ -1,8 +1,6 @@
-#include <stdlib.h>
-#include <string.h>
-#include <mpi.h>
-#include <pthread.h>
-
-
+#ifndef CALCULATION_H
+#define CALCULATION_H
 
 void run_threadpool(  )
+
+#endif

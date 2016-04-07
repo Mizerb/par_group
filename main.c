@@ -4,10 +4,10 @@
  * There was a side of the road involved somewhere
  * For the roadside.
  * 
- * Aaron Brooks
- * Ben Mizera
- * Chris Chappell
- * Trenton Baldrey 
+ * Aaron "Deadeye" Brooks
+ * Ben "Stig" Mizera
+ * Chris "The Cannon" Chappell
+ * Trenton "Silver Tongue" Baldrey 
  * 
  * OR in order of last name:
  * 
@@ -25,21 +25,11 @@
 #include <mpi.h>
 #include <pthread.h>
 
-typedef struct
-{
-    int mpi_rank;
-    int mpi_commsize;
-    int pthreads_per_mpi;
-    int matrix_size;
-    int matrix_slice_height;
-    int* matrix_data;
-    pthread
-} program_info;
 
-
-#include "Generation.h"
-#include "Calculation.h"
-#include "Documentation.h"
+#include "info.h"
+#include "generation.h"
+#include "calculation.h"
+#include "documentation.h"
 
 /* TODO: macro for taking x,y coords and fetching matrix location */
 
@@ -92,7 +82,7 @@ int main(int argc,  char* argv[])
         3. Other?
     */
     
-    inf = grab_args(argc, argv);
+    
     
     /* set up MPI ranks and communication */
     
@@ -104,7 +94,7 @@ int main(int argc,  char* argv[])
     
     MPI_Barrier( MPI_COMM_WORLD );
     /* start timer here? */
-    
+    inf = grab_args(argc, argv);
 
     /* set up pthread pool and allocate matrix */
     
