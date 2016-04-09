@@ -10,7 +10,8 @@ typedef struct
     int pthreads_per_mpi;
     int matrix_size;
     int matrix_slice_height;
-    int* matrix_data;
-    int pthread;
+    double* matrix_data;
+    double** ghost_data;
 } program_info;
-#endif 
+
+#endif

@@ -114,5 +114,16 @@ int main(int argc,  char* argv[])
 
     Write_Out_Matrix();
     
+    MPI_Barrier( MPI_COMM_WORLD );
+  
+    if ( mpi_myrank == 0 )
+    {
+        /* more wtime stuff */
+        end = MPI_Wtime();
+        printf( "%d\t%d\t%d\t%e\n", inf.matrix_size, inf.mpi_commsize, inf.pthreads_per_mpi, end-start );
+    }
+
+    MPI_Finalize();
+    
     return EXIT_SUCCESS;
 }

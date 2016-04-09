@@ -9,7 +9,7 @@
 struct thread_info
 {
     pthread_t id;
-    size_t threadno;
+    int threadno;
     void * arg;
 }
 
@@ -60,17 +60,66 @@ void * tpool_initialize_matrix( void* args )
     return NULL;
 }
 
+/* do summation */
 void * tpool_add_matrix( void* args )
 {
     struct thread_info* arg = args;
     program_info * pargs = arg->arg;
+    int msh = pargs->matrix_slice_height;
+    int i, j, strip_size = msh/pargs->pthreads_per_mpi;
+    double **gptr;
+    double *mptr, *aptr;
     
+    for ( gptr = pargs->ghost_data, j = 0; j < pargs->mpi_commsize; ++gptr, ++j )
+    {
+        for ( mptr = *gptr + strip_size*arg->threadno, i = 0; i < strip_size*(arg->threadno + 1); ++gptr, ++i )
+        {
+            aptr = pargs->matrix_data + j*msh*msh + (i%msh)*msh + i/msh;
+            /* OMG we actually add the matrix value and its transpose!!!! */
+            *aptr += mptr;
+        }
+    }
+    
+    return NULL;
 }
 
 /* send matrix ghost rows */
 // MPI_Isend( *g_GOL_CELL, g_y_cell_size, MPI_DOUBLE, g_mpi_neighbors[0], tick, MPI_COMM_WORLD, &(send_request[0]) );
 
+void send_chunks( program_info pinfo )
+{
+    int i, chunk_size = pinfo.matrix_size*pinfo.matrix_slice_height/pinfo.mpi_commsize;
+    double* mptr;
+    for ( i = 0, mptr = pinfo.matrix_data; i < pinfo.mpi_commsize; ++i, mptr += chunk_size )
+    {
+        MPI_Request r;
+        MPI_Isend( mptr, chunk_size, MPI_DOUBLE, i, 923, MPI_COMM_WORLD, &r );
+    }
+    return;
+}
+
 /* get matrix ghost rows */
 
 // MPI_Irecv( g_GOL_CELL[-1], g_y_cell_size, MPI_DOUBLE, g_mpi_neighbors[0], tick, MPI_COMM_WORLD, &(receive_request[0]) );
-  
+
+void receive_chunks( program_info* pinfo )
+{
+    int i, chunk_size = pinfo->matrix_size*pinfo->matrix_slice_height/pinfo->mpi_commsize;
+    pinfo->ghost_data = calloc( sizeof(double*), mpi_commsize );
+    double** mptr;
+    MPI_Request* r = calloc( sizeof(MPI_Request), mpi_commsize ), rptr;
+    
+    for ( i = 0, mptr = *pinfo->ghost_data, rptr = r; i < mpi_commsize; ++i, ++mptr, ++rptr )
+    {
+        *mptr = calloc( sizeof(double), chunk_size );
+        MPI_Irecv( *mptr, chunk_size, MPI_DOUBLE, i, 923, MPI_COMM_WORLD, &r );
+    }
+    /* wait until all requests have completed */
+    for ( rptr = r; rptr < r+mpi_commsize; ++rptr )
+    {
+        MPI_Wait( &r, MPI_STATUS_IGNORE );
+    }
+    
+    return;
+}
+
