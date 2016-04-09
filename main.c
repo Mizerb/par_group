@@ -60,6 +60,10 @@ program_info grab_args(int argc, char** argv)
     }
     
     // Other input fun;
+    MPI_Comm_size( MPI_COMM_WORLD, &(Ret.mpi_commsize) );
+    MPI_Comm_rank( MPI_COMM_WORLD, &(Ret.mpi_rank) );
+    
+    Ret.matrix_slice_height = Ret.matrix_size / Ret.mpi_commsize;
     
     return Ret;
     
@@ -69,7 +73,7 @@ program_info grab_args(int argc, char** argv)
 int main(int argc,  char* argv[])
 {
     program_info inf;
-  
+    double start, end;
     /* get inputs from command line */
      
     /* INPUTS: 
@@ -83,13 +87,17 @@ int main(int argc,  char* argv[])
     /* set up MPI ranks and communication */
     
     MPI_Init( &argc, &argv);
-    MPI_Comm_size( MPI_COMM_WORLD, &mpi_commsize);
-    MPI_Comm_rank( MPI_COMM_WORLD, &mpi_rank);
     
-    matrix_slice_height = matrix_size/mpi_commsize;
+    /* start timer here? */
+    if ( inf.mpi_rank == 0 )
+    {
+        /* wtime stuff */
+        start = MPI_Wtime();
+    }
     
     MPI_Barrier( MPI_COMM_WORLD );
-    /* start timer here? */
+    
+    
     inf = grab_args(argc, argv);
 
     /* set up pthread pool and allocate matrix */
@@ -101,22 +109,23 @@ int main(int argc,  char* argv[])
     
     /* MPI send */
     
-    
+    send_chunks( inf );
     
     /* create ghost transpose rows */
-     
     /* MPI recv */
     
+    receive_chunks( &inf );
+    
     /* add transpose into matrix */
-    Add_Matrix();
+    run_threadpool( &tpool_add_matrix, &inf, inf->pthreads_per_mpi );
      
-    /*  */
+    /* File output */
 
     Write_Out_Matrix();
     
     MPI_Barrier( MPI_COMM_WORLD );
   
-    if ( mpi_myrank == 0 )
+    if ( inf.mpi_rank == 0 )
     {
         /* more wtime stuff */
         end = MPI_Wtime();
