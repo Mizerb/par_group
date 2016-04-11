@@ -11,13 +11,14 @@ struct thread_info
     pthread_t id;
     int threadno;
     void * arg;
-}
+};
 
 /* creates n-1 threads and runs a given function on itself and each thread */
 void run_threadpool( void * (*func) (void *), void *arg, size_t num_threads )
 {
     struct thread_info* targs = calloc( sizeof(struct thread_info), num_threads );
     struct thread_info* tptr;
+    void * ret;
     
     size_t i;
     
@@ -25,7 +26,7 @@ void run_threadpool( void * (*func) (void *), void *arg, size_t num_threads )
     {
         tptr->threadno = i;
         tptr->arg = arg;
-        pthread_create( *(tptr->id), NULL, func, tptr );
+        pthread_create( &(tptr->id), NULL, func, tptr );
     }
     
     targs->threadno = 0;
@@ -36,7 +37,7 @@ void run_threadpool( void * (*func) (void *), void *arg, size_t num_threads )
     /* make sure all threads have finished before exiting */
     for ( tptr = targs+1; tptr < targs+num_threads; ++tptr )
     {
-        pthread_join(tptr->threadno);
+        pthread_join(tptr->threadno, &ret);
     }
 
     free(targs);
@@ -76,7 +77,7 @@ void * tpool_add_matrix( void* args )
         {
             aptr = pargs->matrix_data + j*msh*msh + (i%msh)*msh + i/msh;
             /* OMG we actually add the matrix value and its transpose!!!! */
-            *aptr += mptr;
+            *aptr += *mptr;
         }
     }
     
@@ -105,19 +106,19 @@ void send_chunks( program_info pinfo )
 void receive_chunks( program_info* pinfo )
 {
     int i, chunk_size = pinfo->matrix_size*pinfo->matrix_slice_height/pinfo->mpi_commsize;
-    pinfo->ghost_data = calloc( sizeof(double*), mpi_commsize );
+    pinfo->ghost_data = calloc( sizeof(double*), pinfo->mpi_commsize );
     double** mptr;
-    MPI_Request* r = calloc( sizeof(MPI_Request), mpi_commsize ), rptr;
+    MPI_Request *r = calloc( sizeof(MPI_Request), pinfo->mpi_commsize ), *rptr;
     
-    for ( i = 0, mptr = *pinfo->ghost_data, rptr = r; i < mpi_commsize; ++i, ++mptr, ++rptr )
+    for ( i = 0, mptr = pinfo->ghost_data, rptr = r; i < pinfo->mpi_commsize; ++i, ++mptr, ++rptr )
     {
         *mptr = calloc( sizeof(double), chunk_size );
-        MPI_Irecv( *mptr, chunk_size, MPI_DOUBLE, i, 923, MPI_COMM_WORLD, &r );
+        MPI_Irecv( *mptr, chunk_size, MPI_DOUBLE, i, 923, MPI_COMM_WORLD, rptr );
     }
     /* wait until all requests have completed */
-    for ( rptr = r; rptr < r+mpi_commsize; ++rptr )
+    for ( rptr = r; rptr < r + pinfo->mpi_commsize; ++rptr )
     {
-        MPI_Wait( &r, MPI_STATUS_IGNORE );
+        MPI_Wait( rptr, MPI_STATUS_IGNORE );
     }
     
     return;

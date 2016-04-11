@@ -73,7 +73,7 @@ program_info grab_args(int argc, char** argv)
 int main(int argc,  char* argv[])
 {
     program_info inf;
-    double start, end;
+    double start = 0.0, end;
     /* get inputs from command line */
      
     /* INPUTS: 
@@ -103,7 +103,7 @@ int main(int argc,  char* argv[])
     /* set up pthread pool and allocate matrix */
     inf.matrix_data = Generate_Matrix( inf.matrix_size, inf.matrix_slice_height );
     
-    run_threadpool( &tpool_initialize_matrix, &inf, inf->pthreads_per_mpi );
+    run_threadpool( &tpool_initialize_matrix, &inf, inf.pthreads_per_mpi );
     
 
     
@@ -117,7 +117,7 @@ int main(int argc,  char* argv[])
     receive_chunks( &inf );
     
     /* add transpose into matrix */
-    run_threadpool( &tpool_add_matrix, &inf, inf->pthreads_per_mpi );
+    run_threadpool( &tpool_add_matrix, &inf, inf.pthreads_per_mpi );
      
     /* File output */
 
