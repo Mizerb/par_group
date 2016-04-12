@@ -101,29 +101,35 @@ int main(int argc,  char* argv[])
         /* wtime stuff */
         start = GetTimeBase();
     }
-
+//     fprintf(stderr, "%d: Grabbing arguments!\n", inf.mpi_rank);
     inf = grab_args(argc, argv);
 
+//     fprintf(stderr, "%d: Generating matrix!\n", inf.mpi_rank);
     /* set up pthread pool and allocate matrix */
     inf.matrix_data = Generate_Matrix( inf.matrix_size, inf.matrix_slice_height );
     
+//     fprintf(stderr, "%d: Getting matrix initialized!\n", inf.mpi_rank);
     run_threadpool( &tpool_initialize_matrix, &inf, inf.pthreads_per_mpi );
     
 
     
     /* MPI send */
     
+//     fprintf(stderr, "%d: Ghost row transmissionalizing!\n", inf.mpi_rank);
     send_chunks( inf );
     
     /* create ghost transpose rows */
     /* MPI recv */
     
+//     fprintf(stderr, "%d: Grabbing ghost rows!\n", inf.mpi_rank);
     receive_chunks( &inf );
     
     /* add transpose into matrix */
+//     fprintf(stderr, "%d: Gathering sumations!\n", inf.mpi_rank);
     run_threadpool( &tpool_add_matrix, &inf, inf.pthreads_per_mpi );
      
     /* File output */
+//     fprintf(stderr, "%d: Getting file IO done!\n", inf.mpi_rank);
     int mode;
     if ( inf.mpi_rank == 0 ){
             printf("WRITE_OUT_TIME\n");
@@ -163,6 +169,8 @@ int main(int argc,  char* argv[])
         end = GetTimeBase();
         printf( "TOTAL\n%llu\n", end-start );
     }
+    
+//     fprintf(stderr, "%d: Going away!\n", inf.mpi_rank);
 
     MPI_Finalize();
     
