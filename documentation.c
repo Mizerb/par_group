@@ -6,7 +6,7 @@
 #define blocked 1
 #define compact 0
 
-void File_Write(int * matrix_data, 
+void File_Write(double * matrix_data, 
 	int mpi_rank, 
 	int matrix_size , 
 	int matrix_slice_height,
@@ -17,7 +17,7 @@ void File_Write(int * matrix_data,
 	MPI_Status status;
 	int fusize, nints;
 	int offset;
-	int size = matrix_slice_height * matrix_size; //something like that
+	int size = matrix_slice_height * matrix_size; //something like that, have to ask others
 	// File name fun
 	char file_name[80] = "output";
 	char num_str[20];
@@ -30,25 +30,25 @@ void File_Write(int * matrix_data,
 	{
 		int eight_meg = 8000000;
 		
-		int blocks = ( (sizeof(int)*size) + eight_meg - 1)/ eight_meg;
+		int blocks = ( (sizeof(double)*size) + eight_meg - 1)/ eight_meg;
 		offset  = eight_meg * blocks; 
 	}
 	else
 	{
-		offset = mpi_rank * sizeof(int) * matrix_slice_height * matrix_size;
+		offset = mpi_rank  * size;
 	}
 	
 	
-	MPI_FILE_open(MPI_COMM_WORLD, file_name, MPI_MODE_WRONLY|MPI_MODE_CREATE , MPI_INFO_NULL, &fh);
+	MPI_File_open(MPI_COMM_WORLD, file_name, MPI_MODE_WRONLY|MPI_MODE_CREATE , MPI_INFO_NULL, &fh);
 	
 	
 	if( file_count == 1)
-	{
-		MPI_File_write_at_all(fh, offset, matrix_data, size , MPI_INT, &status );
+	{				//OFFSET count of object to offset, not byte count of offset
+		MPI_File_write_at_all(fh, offset, matrix_data, size , MPI_DOUBLE, &status );
 	}
 	else
 	{
-		MPI_File_write_at(fh,offset, matrix_data, size, MPI_INT, &status);
+		MPI_File_write_at(fh,offset, matrix_data, size, MPI_DOUBLE, &status);
 	}
 	
 	
@@ -60,7 +60,7 @@ void File_Write(int * matrix_data,
 
 
 
-void Write_OUt_Matrix(int * matrix_data, 
+void Write_Out_Matrix(double * matrix_data, 
 	int mpi_rank, 
 	int matrix_size , 
 	int matrix_slice_height,

@@ -31,6 +31,11 @@
 #include "calculation.h"
 #include "documentation.h"
 
+
+unsigned long long GetTimeBase(){
+    return 0;
+}
+
 program_info grab_args(int argc, char** argv)
 {
     
@@ -73,7 +78,7 @@ program_info grab_args(int argc, char** argv)
 int main(int argc,  char* argv[])
 {
     program_info inf;
-    double start = 0.0, end;
+    unsigned long long start = 0, end , o_start  , o_end;
     /* get inputs from command line */
      
     /* INPUTS: 
@@ -88,16 +93,15 @@ int main(int argc,  char* argv[])
     
     MPI_Init( &argc, &argv);
     
+    MPI_Barrier( MPI_COMM_WORLD );
+
     /* start timer here? */
     if ( inf.mpi_rank == 0 )
     {
         /* wtime stuff */
-        start = MPI_Wtime();
+        start = GetTimeBase();
     }
-    
-    MPI_Barrier( MPI_COMM_WORLD );
-    
-    
+
     inf = grab_args(argc, argv);
 
     /* set up pthread pool and allocate matrix */
@@ -120,16 +124,44 @@ int main(int argc,  char* argv[])
     run_threadpool( &tpool_add_matrix, &inf, inf.pthreads_per_mpi );
      
     /* File output */
-
-    Write_Out_Matrix();
+    int mode;
+    if ( inf.mpi_rank == 0 ){
+            printf("WRITE_OUT_TIME\n");
+    }
+    for(mode = 0 ; mode< 8 ; mode++ )
+    {
+        //Start timer here
+        MPI_Barrier( MPI_COMM_WORLD );
+        if ( inf.mpi_rank == 0 ){
+            o_start = GetTimeBase();
+        }
+        MPI_Barrier( MPI_COMM_WORLD );
+        //run the thing
+        Write_Out_Matrix( inf.matrix_data, 
+            inf.mpi_rank , 
+            inf.matrix_size, 
+            inf.matrix_slice_height, 
+            mode); // We have to time I/O seperatly from calcuation
+        
+        //end timer here
+        
+        MPI_Barrier( MPI_COMM_WORLD );
+        if ( inf.mpi_rank == 0 ){
+            o_end = GetTimeBase();
+        }
+        //write out time (to file?)
+        if ( inf.mpi_rank == 0 ){
+            printf("%d\t%llu\n", mode, o_end - o_start);
+        }
+    }
     
     MPI_Barrier( MPI_COMM_WORLD );
   
     if ( inf.mpi_rank == 0 )
     {
         /* more wtime stuff */
-        end = MPI_Wtime();
-        printf( "%d\t%d\t%d\t%e\n", inf.matrix_size, inf.mpi_commsize, inf.pthreads_per_mpi, end-start );
+        end = GetTimeBase();
+        printf( "TOTAL\n%llu\n", end-start );
     }
 
     MPI_Finalize();

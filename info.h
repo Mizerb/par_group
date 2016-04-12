@@ -14,4 +14,7 @@ typedef struct
     double** ghost_data;
 } program_info;
 
+
+unsigned long long GetTimeBase();
+
 #endif

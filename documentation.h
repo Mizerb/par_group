@@ -4,7 +4,11 @@
 
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
-void Write_Out_Matrix();
+void Write_Out_Matrix(double * matrix_data, 
+	int mpi_rank, 
+	int matrix_size , 
+	int matrix_slice_height,
+	int mod);
 
 FILE* Create_Buffer_File();
 

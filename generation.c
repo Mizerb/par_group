@@ -2,7 +2,7 @@
 #include "info.h"
 
 
-double* Generate_Matrix( int matrix_width, int matrix_height )
+double* Generate_Matrix( int matrix_size, int matrix_slice_height )
 {
     double* output;
     int arrlength = matrix_size * matrix_slice_height;
