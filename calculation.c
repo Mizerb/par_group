@@ -2,6 +2,7 @@
 #include <string.h>
 #include <mpi.h>
 #include <pthread.h>
+#include <stdio.h>
 
 #include "calculation.h"
 #include "generation.h"
@@ -27,17 +28,19 @@ void run_threadpool( void * (*func) (void *), void *arg, size_t num_threads )
         tptr->threadno = i;
         tptr->arg = arg;
         pthread_create( &(tptr->id), NULL, func, tptr );
+        //fprintf(stderr, " Created pthread with id %d.\n", tptr->threadno);
     }
     
     targs->threadno = 0;
     targs->arg = arg;
+    //fprintf(stderr, " Running function on self as thread 0\n");
     targs->id = pthread_self();
     (*func)(targs);
-    
     /* make sure all threads have finished before exiting */
     for ( tptr = targs+1; tptr < targs+num_threads; ++tptr )
     {
-        pthread_join(tptr->threadno, &ret);
+        //fprintf(stderr, " Attempting to join pthread with id %d.\n", tptr->threadno);
+        pthread_join(tptr->id, &ret);
     }
 
     free(targs);
@@ -70,12 +73,12 @@ void * tpool_add_matrix( void* args )
     int i, j, strip_size = msh/pargs->pthreads_per_mpi;
     double **gptr;
     double *mptr, *aptr;
-    
+
     for ( gptr = pargs->ghost_data, j = 0; j < pargs->mpi_commsize; ++gptr, ++j )
     {
-        for ( mptr = *gptr + strip_size*arg->threadno, i = 0; i < strip_size*(arg->threadno + 1); ++gptr, ++i )
+        for ( mptr = *gptr + strip_size*msh*arg->threadno, i = 0; i < strip_size*msh; ++mptr, ++i )
         {
-            aptr = pargs->matrix_data + j*msh*msh + (i%msh)*msh + i/msh;
+            aptr = pargs->matrix_data + j*msh*msh + (i%msh)*msh  + arg->threadno + i/msh;
             /* OMG we actually add the matrix value and its transpose!!!! */
             *aptr += *mptr;
         }
@@ -89,7 +92,7 @@ void * tpool_add_matrix( void* args )
 
 void send_chunks( program_info pinfo )
 {
-    int i, chunk_size = pinfo.matrix_size*pinfo.matrix_slice_height/pinfo.mpi_commsize;
+    int i, chunk_size = pinfo.matrix_slice_height*pinfo.matrix_slice_height;
     double* mptr;
     for ( i = 0, mptr = pinfo.matrix_data; i < pinfo.mpi_commsize; ++i, mptr += chunk_size )
     {
@@ -105,7 +108,7 @@ void send_chunks( program_info pinfo )
 
 void receive_chunks( program_info* pinfo )
 {
-    int i, chunk_size = pinfo->matrix_size*pinfo->matrix_slice_height/pinfo->mpi_commsize;
+    int i, chunk_size = pinfo->matrix_slice_height*pinfo->matrix_slice_height;
     pinfo->ghost_data = calloc( sizeof(double*), pinfo->mpi_commsize );
     double** mptr;
     MPI_Request *r = calloc( sizeof(MPI_Request), pinfo->mpi_commsize ), *rptr;
@@ -120,7 +123,6 @@ void receive_chunks( program_info* pinfo )
     {
         MPI_Wait( rptr, MPI_STATUS_IGNORE );
     }
-    
     return;
 }
 
