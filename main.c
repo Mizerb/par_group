@@ -39,7 +39,7 @@ unsigned long long GetTimeBase(){
 program_info grab_args(int argc, char** argv)
 {
     
-    if(argc != 3)
+    if(argc != 4)
     {
         fprintf(stderr , "Usage: \n 1: Matrix Size (2^Z  for X by X matrix\n 2: Pthreads per mpi rank (more than 0)\n");
         exit( EXIT_FAILURE);
@@ -84,7 +84,7 @@ int main(int argc,  char* argv[])
     /* INPUTS: 
         1. size of Matrix (X by X)
         2. Pthreads per MPI rank
-        3. Other?
+        3. Write_out_mode
     */
     
     
@@ -124,36 +124,35 @@ int main(int argc,  char* argv[])
     run_threadpool( &tpool_add_matrix, &inf, inf.pthreads_per_mpi );
      
     /* File output */
-    int mode;
+    int mode = atoi( argv[3]);
     if ( inf.mpi_rank == 0 ){
             printf("WRITE_OUT_TIME\n");
     }
-    for(mode = 0 ; mode< 8 ; mode++ )
-    {
-        //Start timer here
-        MPI_Barrier( MPI_COMM_WORLD );
-        if ( inf.mpi_rank == 0 ){
-            o_start = GetTimeBase();
-        }
-        MPI_Barrier( MPI_COMM_WORLD );
-        //run the thing
-        Write_Out_Matrix( inf.matrix_data, 
-            inf.mpi_rank , 
-            inf.matrix_size, 
-            inf.matrix_slice_height, 
-            mode); // We have to time I/O seperatly from calcuation
-        
-        //end timer here
-        
-        MPI_Barrier( MPI_COMM_WORLD );
-        if ( inf.mpi_rank == 0 ){
-            o_end = GetTimeBase();
-        }
-        //write out time (to file?)
-        if ( inf.mpi_rank == 0 ){
-            printf("%d\t%llu\n", mode, o_end - o_start);
-        }
+    
+    //Start timer here
+    MPI_Barrier( MPI_COMM_WORLD );
+    if ( inf.mpi_rank == 0 ){
+        o_start = GetTimeBase();
     }
+    MPI_Barrier( MPI_COMM_WORLD );
+    //run the thing
+    Write_Out_Matrix( inf.matrix_data, 
+        inf.mpi_rank , 
+        inf.matrix_size, 
+        inf.matrix_slice_height, 
+        mode); // We have to time I/O seperatly from calcuation
+    
+    //end timer here
+    
+    MPI_Barrier( MPI_COMM_WORLD );
+    if ( inf.mpi_rank == 0 ){
+        o_end = GetTimeBase();
+    }
+    //write out time (to file?)
+    if ( inf.mpi_rank == 0 ){
+        printf("%d\t%llu\n", mode, o_end - o_start);
+    }
+
     
     MPI_Barrier( MPI_COMM_WORLD );
   
