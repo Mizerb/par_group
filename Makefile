@@ -1,2 +1,2 @@
 all:
-	mpicc -lpthread calculation.c documentation.c generation.c ./Timer/timer.c main.c -o test.exe 
+	mpixlc -I. -qflag=w -lpthread calculation.c documentation.c generation.c main.c -o assignment4.xl
