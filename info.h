@@ -15,6 +15,6 @@ typedef struct
 } program_info;
 
 
-unsigned long long GetTimeBase();
+/*unsigned long long GetTimeBase();*/
 
 #endif

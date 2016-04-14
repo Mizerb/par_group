@@ -25,17 +25,19 @@
 #include <mpi.h>
 #include <pthread.h>
 
+#include <hwi/include/bqc/A2_inlines.h>
+
 
 #include "info.h"
 #include "generation.h"
 #include "calculation.h"
 #include "documentation.h"
 
-
+/*
 unsigned long long GetTimeBase(){
     return 0;
 }
-
+*/
 program_info grab_args(int argc, char** argv)
 {
     
@@ -141,8 +143,10 @@ int main(int argc,  char* argv[])
         if ( inf.mpi_rank == 0 ){
             o_start = GetTimeBase();
         }
-        MPI_Barrier( MPI_COMM_WORLD );
+        //MPI_Barrier( MPI_COMM_WORLD );
         //run the thing
+	printf("Write out matrix %d\n", mode);
+	fflush(stdout);
         Write_Out_Matrix( inf.matrix_data, 
             inf.mpi_rank , 
             inf.matrix_size, 
