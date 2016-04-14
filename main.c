@@ -42,6 +42,7 @@ program_info grab_args(int argc, char** argv)
     if(argc != 4)
     {
         fprintf(stderr , "Usage: \n 1: Matrix Size (2^Z  for X by X matrix\n 2: Pthreads per mpi rank (more than 0)\n");
+        MPI_Finalize();
         exit( EXIT_FAILURE);
     }
      
@@ -53,6 +54,7 @@ program_info grab_args(int argc, char** argv)
     if( (Ret.matrix_size %2 != 0)  || Ret.matrix_size < 1 )
     {
         fprintf(stderr, "Matrix_Size Usage: 2^Z for the X by X matrix size\n");
+        MPI_Finalize();
         exit(EXIT_FAILURE);
     }
     
