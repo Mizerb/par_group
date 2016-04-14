@@ -19,12 +19,15 @@ void File_Write(double * matrix_data,
 	int offset;
 	int size = matrix_slice_height * matrix_size; //something like that, have to ask others
 	// File name fun
-	char file_name[80] = "out/output";
+	char file_name[80] = "output";
 	char num_str[20];
-	sprintf(num_str, "%d" , mpi_rank/file_count);
+	int file_num = 0;
+	if(file_count != 1 ) file_num = mpi_rank/file_count; 
+	sprintf(num_str, "%d" , file_num);
 	strcat(file_name, num_str);
 	strcat(file_name, ".log");
 	//End of Filename fun
+
 	
 	if(is_blocked == blocked)
 	{
@@ -39,7 +42,8 @@ void File_Write(double * matrix_data,
 	}
 	
 
-	printf("RANK %d TO WRITE AT %d \n", mpi_rank , offset);
+	
+	printf("RANK %d WRITING %d bytes at offset %d \n", mpi_rank, (int)size*sizeof(double) , (int)offset*sizeof(double));
 	
 	MPI_File_open(MPI_COMM_WORLD, file_name, MPI_MODE_WRONLY|MPI_MODE_CREATE , MPI_INFO_NULL, &fh);
 	
@@ -50,6 +54,7 @@ void File_Write(double * matrix_data,
 	}
 	else
 	{
+		printf("dickbut\n");
 		MPI_File_write_at(fh,offset, matrix_data, size, MPI_DOUBLE, &status);
 	}
 	
