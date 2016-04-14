@@ -28,16 +28,18 @@ void File_Write(double * matrix_data,
 	
 	if(is_blocked == blocked)
 	{
-		int eight_meg = 8000000;
+		int eight_meg = 8388608;
 		
 		int blocks = ( (sizeof(double)*size) + eight_meg - 1)/ eight_meg;
-		offset  = eight_meg * blocks; 
+		offset  = eight_meg * blocks * mpi_rank; 
 	}
 	else
 	{
 		offset = mpi_rank  * size;
 	}
 	
+
+	printf("RANK %d TO WRITE AT %d \n", mpi_rank , offset);
 	
 	MPI_File_open(MPI_COMM_WORLD, file_name, MPI_MODE_WRONLY|MPI_MODE_CREATE , MPI_INFO_NULL, &fh);
 	
