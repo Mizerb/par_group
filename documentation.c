@@ -19,7 +19,7 @@ void File_Write(double * matrix_data,
 	int offset;
 	int size = matrix_slice_height * matrix_size; //something like that, have to ask others
 	// File name fun
-	char file_name[80] = "output";
+	char file_name[80] = "out/output";
 	char num_str[20];
 	sprintf(num_str, "%d" , mpi_rank/file_count);
 	strcat(file_name, num_str);

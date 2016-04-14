@@ -25,17 +25,19 @@
 #include <mpi.h>
 #include <pthread.h>
 
+#include <hwi/include/bqc/A2_inlines.h>
+
 
 #include "info.h"
 #include "generation.h"
 #include "calculation.h"
 #include "documentation.h"
 
-
+/*
 unsigned long long GetTimeBase(){
     return 0;
 }
-
+*/
 program_info grab_args(int argc, char** argv)
 {
     
@@ -137,7 +139,6 @@ int main(int argc,  char* argv[])
     if ( inf.mpi_rank == 0 ){
             printf("WRITE_OUT_TIME\n");
     }
-    
     //Start timer here
     MPI_Barrier( MPI_COMM_WORLD );
     if ( inf.mpi_rank == 0 ){
