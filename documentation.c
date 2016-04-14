@@ -71,29 +71,16 @@ void Write_Out_Matrix(double * matrix_data,
 	//shit shit shit
 	//Tired, pain.. fkkk
 	switch(mode) {
-
-		case 0: 
-			CALL_ALL(File_Write, blocked , 1);
-			break;
-		case 1:
+		case 0:
 			CALL_ALL(File_Write, compact , 1);
 			break;
-		case 2:
-			CALL_ALL(File_Write, blocked , 4);
-			break;
-		case 3:
+		case 1:
 			CALL_ALL(File_Write, compact , 4);
 			break;
-		case 4:
-			CALL_ALL(File_Write, blocked , 8);
-			break;
-		case 5:
+		case 2:
 			CALL_ALL(File_Write, compact , 8);
 			break;
-		case 6:
-			CALL_ALL(File_Write, blocked , 32);
-			break;
-		case 7:
+		case 3:
 			CALL_ALL(File_Write, compact , 32);
 			break;
 	}
