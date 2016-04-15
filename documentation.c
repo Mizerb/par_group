@@ -10,7 +10,7 @@ void File_Write(double * matrix_data,
 	int mpi_rank, 
 	int matrix_size , 
 	int matrix_slice_height,
-	int is_blocked,
+	int meh,
 	int file_count)
 {
 	MPI_File fh;
@@ -34,7 +34,7 @@ void File_Write(double * matrix_data,
 	if(file_count != 1 ) file_number = mpi_rank/file_count; 
 
 	//printf("RANK %d has filenum : %d for file count %d\n" , mpi_rank , file_number, file_count);
-	sprintf(file_name , "output-%d.log", file_number);
+	sprintf(file_name , "%d-output-%d.log",meh, file_number);
 
 
 	//End of Filename fun
@@ -85,22 +85,23 @@ void Write_Out_Matrix(double * matrix_data,
 	int mpi_rank, 
 	int matrix_size , 
 	int matrix_slice_height,
-	int mode )
+	int mode,
+	int meh )
 {
 	//shit shit shit
 	//Tired, pain.. fkkk
 	switch(mode) {
 		case 0:
-			CALL_ALL(File_Write, compact , 1);
+			CALL_ALL(File_Write, meh , 1);
 			break;
 		case 1:
-			CALL_ALL(File_Write, compact , 4);
+			CALL_ALL(File_Write, meh , 4);
 			break;
 		case 2:
-			CALL_ALL(File_Write, compact , 8);
+			CALL_ALL(File_Write, meh , 8);
 			break;
 		case 3:
-			CALL_ALL(File_Write, compact , 32);
+			CALL_ALL(File_Write, meh , 32);
 			break;
 	}
 

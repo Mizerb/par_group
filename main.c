@@ -41,7 +41,7 @@ unsigned long long GetTimeBase(){
 program_info grab_args(int argc, char** argv)
 {
     
-    if(argc != 4)
+    if(argc != 5)
     {
         fprintf(stderr , "Usage: \n 1: Matrix Size (2^Z  for X by X matrix\n 2: Pthreads per mpi rank (more than 0)\n");
         exit( EXIT_FAILURE);
@@ -87,6 +87,7 @@ int main(int argc,  char* argv[])
         1. size of Matrix (X by X)
         2. Pthreads per MPI rank
         3. Write_out_mode
+        4. Extra fun data number      #-output-(file_ouput_number).log
     */
     
     
@@ -150,7 +151,8 @@ int main(int argc,  char* argv[])
         inf.mpi_rank , 
         inf.matrix_size, 
         inf.matrix_slice_height, 
-        mode); // We have to time I/O seperatly from calcuation
+        mode,
+        argv[4]); // We have to time I/O seperatly from calcuation
     
     //end timer here
     
