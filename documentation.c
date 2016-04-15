@@ -34,7 +34,7 @@ void File_Write(double * matrix_data,
 	if(file_count != 1 ) file_number = mpi_rank/file_count; 
 
 	//printf("RANK %d has filenum : %d for file count %d\n" , mpi_rank , file_number, file_count);
-	sprintf(file_name , "%d-output-%d.log",meh, file_number);
+	sprintf(file_name , "out/%d-output-%d.log",meh, file_number);
 
 
 	//End of Filename fun
