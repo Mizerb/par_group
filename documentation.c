@@ -77,6 +77,7 @@ void File_Write(double * matrix_data,
 	
 	MPI_Barrier( MPI_COMM_WORLD );
 	MPI_File_close(&fh);
+	remove(file_name);
 }
 
 
