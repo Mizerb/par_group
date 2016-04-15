@@ -120,14 +120,12 @@ int main(int argc,  char* argv[])
     
     /* MPI send */
     
-//     fprintf(stderr, "%d: Ghost row transmissionalizing!\n", inf.mpi_rank);
-    send_chunks( inf );
-    
+//     fprintf(stderr, "%d: Ghost row transmissionalizing!\n", inf.mpi_rank);    
     /* create ghost transpose rows */
     /* MPI recv */
     
 //     fprintf(stderr, "%d: Grabbing ghost rows!\n", inf.mpi_rank);
-    receive_chunks( &inf );
+    send_receive_chunks( &inf );
     
     /* add transpose into matrix */
 //     fprintf(stderr, "%d: Gathering sumations!\n", inf.mpi_rank);
@@ -138,11 +136,11 @@ int main(int argc,  char* argv[])
 
 //     fprintf(stderr, "%d: Getting file IO done!\n", inf.mpi_rank);
 
-
+/*
     if ( inf.mpi_rank == 0 ){
             printf("WRITE_OUT_TIME\n");
     }
-    //Start timer here
+*/    //Start timer here
     MPI_Barrier( MPI_COMM_WORLD );
     if ( inf.mpi_rank == 0 ){
         o_start = GetTimeBase();
@@ -174,7 +172,7 @@ int main(int argc,  char* argv[])
     {
         /* more wtime stuff */
         end = GetTimeBase();
-        printf( "TOTAL\n%llu\n", end-start );
+        printf( "%d\t%llu (TOTAL)\n", mode, end-start );
     }
     
 //     fprintf(stderr, "%d: Going away!\n", inf.mpi_rank);

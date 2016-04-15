@@ -87,37 +87,33 @@ void * tpool_add_matrix( void* args )
     return NULL;
 }
 
-/* send matrix ghost rows */
-// MPI_Isend( *g_GOL_CELL, g_y_cell_size, MPI_DOUBLE, g_mpi_neighbors[0], tick, MPI_COMM_WORLD, &(send_request[0]) );
-
-void send_chunks( program_info pinfo )
-{
-    int i, chunk_size = pinfo.matrix_slice_height*pinfo.matrix_slice_height;
-    double* mptr;
-    for ( i = 0, mptr = pinfo.matrix_data; i < pinfo.mpi_commsize; ++i, mptr += chunk_size )
-    {
-        MPI_Request r;
-        MPI_Isend( mptr, chunk_size, MPI_DOUBLE, i, 923, MPI_COMM_WORLD, &r );
-    }
-    return;
-}
 
 /* get matrix ghost rows */
 
 // MPI_Irecv( g_GOL_CELL[-1], g_y_cell_size, MPI_DOUBLE, g_mpi_neighbors[0], tick, MPI_COMM_WORLD, &(receive_request[0]) );
 
-void receive_chunks( program_info* pinfo )
+void send_receive_chunks( program_info* pinfo )
 {
     int i, chunk_size = pinfo->matrix_slice_height*pinfo->matrix_slice_height;
     pinfo->ghost_data = calloc( sizeof(double*), pinfo->mpi_commsize );
-    double** mptr;
+    double** gptr;
+    double* mptr;
     MPI_Request *r = calloc( sizeof(MPI_Request), pinfo->mpi_commsize ), *rptr;
     
-    for ( i = 0, mptr = pinfo->ghost_data, rptr = r; i < pinfo->mpi_commsize; ++i, ++mptr, ++rptr )
+    /* do Irecvs first */
+    for ( i = 0, gptr = pinfo->ghost_data, rptr = r; i < pinfo->mpi_commsize; ++i, ++gptr, ++rptr )
     {
-        *mptr = calloc( sizeof(double), chunk_size );
-        MPI_Irecv( *mptr, chunk_size, MPI_DOUBLE, i, 923, MPI_COMM_WORLD, rptr );
+        *gptr = calloc( sizeof(double), chunk_size );
+        MPI_Irecv( *gptr, chunk_size, MPI_DOUBLE, i, 923, MPI_COMM_WORLD, rptr );
     }
+    
+    /* do Isends after we do the receives */
+    for ( i = 0, mptr = pinfo->matrix_data; i < pinfo->mpi_commsize; ++i, mptr += chunk_size )
+    {
+        MPI_Request r;
+        MPI_Isend( mptr, chunk_size, MPI_DOUBLE, i, 923, MPI_COMM_WORLD, &r );
+    }
+    
     /* wait until all requests have completed */
     for ( rptr = r; rptr < r + pinfo->mpi_commsize; ++rptr )
     {
