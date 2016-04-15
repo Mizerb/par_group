@@ -16,7 +16,7 @@ void File_Write(double * matrix_data,
 	MPI_File fh;
 	MPI_Status status;
 	int fusize, nints;
-	int offset;
+	unsigned long long offset;
 	int size = matrix_slice_height * matrix_size; //something like that, have to ask others
 	// File name fun
 	/*
@@ -33,7 +33,7 @@ void File_Write(double * matrix_data,
 	int file_number = 0;
 	if(file_count != 1 ) file_number = mpi_rank/file_count; 
 
-	printf("RANK %d has filenum : %d for file count %d\n" , mpi_rank , file_number, file_count);
+	//printf("RANK %d has filenum : %d for file count %d\n" , mpi_rank , file_number, file_count);
 	sprintf(file_name , "output-%d.log", file_number);
 
 
@@ -51,7 +51,7 @@ void File_Write(double * matrix_data,
 	}
 	else
 	{
-		printf("dickbut\n");
+		//printf("dickbut\n");
 		MPI_Comm file_comm;
 		MPI_Comm_split(MPI_COMM_WORLD, file_number, mpi_rank, &file_comm);
 	    MPI_File_open(file_comm, file_name, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &fh);
@@ -60,7 +60,7 @@ void File_Write(double * matrix_data,
 		
 		MPI_Barrier(file_comm);
 
-	    printf("RANK %d writing to file %s\n", mpi_rank , file_name);
+	    //printf("RANK %d writing to file %s\n", mpi_rank , file_name);
 	    /*
 	    char HA[200];
 	    sprintf(HA , "meh.%d", mpi_rank );
@@ -69,7 +69,7 @@ void File_Write(double * matrix_data,
 	    	for( i = 0 ; i < size ; i++ )
 	    		printf( "IS THERE DATA: %f\n" , matrix_data[i]  );
 		*/
-		printf("RANK %d WRITING %d bytes at offset %d \n", mpi_rank, (int)size*sizeof(double) , (int)offset);	
+		//printf("RANK %d WRITING %d bytes at offset %d \n", mpi_rank, (int)size*sizeof(double) , (int)offset);	
 		
 		MPI_File_write_at(fh,offset, matrix_data, size, MPI_DOUBLE, &status);
 		
