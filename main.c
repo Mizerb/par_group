@@ -25,7 +25,7 @@
 #include <mpi.h>
 #include <pthread.h>
 
-#include <hwi/include/bqc/A2_inlines.h>
+//#include <hwi/include/bqc/A2_inlines.h>
 
 
 #include "info.h"
@@ -33,11 +33,11 @@
 #include "calculation.h"
 #include "documentation.h"
 
-/*
+
 unsigned long long GetTimeBase(){
     return 0;
 }
-*/
+
 program_info grab_args(int argc, char** argv)
 {
     
@@ -152,7 +152,7 @@ int main(int argc,  char* argv[])
         inf.matrix_size, 
         inf.matrix_slice_height, 
         mode,
-        argv[4]); // We have to time I/O seperatly from calcuation
+        atoi(argv[4])); // We have to time I/O seperatly from calcuation
     
     //end timer here
     
