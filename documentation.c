@@ -17,7 +17,7 @@ void File_Write(double * matrix_data,
 	MPI_Status status;
 	int fusize, nints;
 	unsigned long long offset;
-	int size = matrix_slice_height * matrix_size; //something like that, have to ask others
+	unsigned size = matrix_slice_height * matrix_size; //something like that, have to ask others
 	// File name fun
 	/*
 	char file_name[80] = "output";
@@ -46,7 +46,7 @@ void File_Write(double * matrix_data,
 	{				//OFFSET count of object to offset, not byte count of offset
 		// WORKING
 		MPI_File_open(MPI_COMM_WORLD, file_name, MPI_MODE_WRONLY|MPI_MODE_CREATE , MPI_INFO_NULL, &fh);
-	
+		//printf("We are alive\n");
 		MPI_File_write_at_all(fh, offset, matrix_data, size , MPI_DOUBLE, &status );
 	}
 	else
