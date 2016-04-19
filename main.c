@@ -134,6 +134,42 @@ int main(int argc,  char* argv[])
     /* File output */
     int mode = atoi( argv[3]);
 
+    /* THIS IS HOW YOU MIGHT GO ABOUT PRINTING THE MATRIX
+     * IF YOU WERE SO FOOLISH AS TO DO SO
+     */
+    /*
+    int b, i;
+    double *mptr, *gptr;
+    for ( b = 0; b < inf.mpi_commsize; ++b )
+    {
+        // separate print statements
+        MPI_Barrier(MPI_COMM_WORLD);
+        if ( b == inf.mpi_rank )
+        {
+            // loop through each row in our data
+            for
+            ( 
+              gptr = inf.matrix_data; 
+              gptr < inf.matrix_data + inf.matrix_slice_height;
+              ++gptr
+            )
+            {
+                // loop through each column
+                for 
+                (
+                  i = 0, mptr=gptr;
+                  i < inf.matrix_size;
+                  ++i, mptr+=inf.matrix_slice_height
+                )
+                {
+                    printf("%4.0f\t", *mptr);
+                }
+                printf("\n");
+            }
+        }
+    }
+    */
+    
 //     fprintf(stderr, "%d: Getting file IO done!\n", inf.mpi_rank);
 
 /*
