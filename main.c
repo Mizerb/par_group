@@ -25,7 +25,7 @@
 #include <mpi.h>
 #include <pthread.h>
 
-#include <hwi/include/bqc/A2_inlines.h>
+//#include <hwi/include/bqc/A2_inlines.h>
 
 
 #include "info.h"
@@ -33,11 +33,11 @@
 #include "calculation.h"
 #include "documentation.h"
 
-/*
+/**/
 unsigned long long GetTimeBase(){
     return 0;
 }
-*/
+/**/
 program_info grab_args(int argc, char** argv)
 {
     
@@ -83,7 +83,7 @@ int main(int argc,  char* argv[])
 {
     program_info inf;
     int i, b;
-    double *gtr, *mptr;
+    double *gptr, *mptr;
     unsigned long long start = 0, end , o_start  , o_end;
     /* get inputs from command line */
      
@@ -117,7 +117,7 @@ int main(int argc,  char* argv[])
     
 //     fprintf(stderr, "%d: Getting matrix initialized!\n", inf.mpi_rank);
     // test summation with predetermined initializations
-    for ( i = mpi_rank*inf.matrix_size*inf.matrix_slice_height gptr=inf.matrix_data; i < (mpi_rank+1)*inf.matrix_size*inf.matrix_slice_height; ++i, ++gptr )
+    for ( i = inf.mpi_rank*inf.matrix_size*inf.matrix_slice_height, gptr=inf.matrix_data; i < (inf.mpi_rank+1)*inf.matrix_size*inf.matrix_slice_height; ++i, ++gptr )
     {
         *gptr = i;
     }
@@ -132,7 +132,7 @@ int main(int argc,  char* argv[])
             {
                 for ( i = 0, mptr=gptr; i < inf.matrix_size; ++i, mptr+=inf.matrix_slice_height )
                 {
-                    printf("%2.0f ", *mptr);
+                    printf("%3.0f ", *mptr);
                 }
                 printf("\n");
             }
@@ -162,7 +162,7 @@ int main(int argc,  char* argv[])
             {
                 for ( i = 0, mptr=gptr; i < inf.matrix_size; ++i, mptr+=inf.matrix_slice_height )
                 {
-                    printf("%2.0f ", *mptr);
+                    printf("%3.0f ", *mptr);
                 }
                 printf("\n");
             }
