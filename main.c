@@ -82,6 +82,8 @@ program_info grab_args(int argc, char** argv)
 int main(int argc,  char* argv[])
 {
     program_info inf;
+    int i, b;
+    double *gtr, *mptr;
     unsigned long long start = 0, end , o_start  , o_end;
     /* get inputs from command line */
      
@@ -114,9 +116,28 @@ int main(int argc,  char* argv[])
     inf.matrix_data = Generate_Matrix( inf.matrix_size, inf.matrix_slice_height );
     
 //     fprintf(stderr, "%d: Getting matrix initialized!\n", inf.mpi_rank);
-    run_threadpool( &tpool_initialize_matrix, &inf, inf.pthreads_per_mpi );
-    
-
+    // test summation with predetermined initializations
+    for ( i = mpi_rank*inf.matrix_size*inf.matrix_slice_height gptr=inf.matrix_data; i < (mpi_rank+1)*inf.matrix_size*inf.matrix_slice_height; ++i, ++gptr )
+    {
+        *gptr = i;
+    }
+    //run_threadpool( &tpool_initialize_matrix, &inf, inf.pthreads_per_mpi );
+    // print out initialized matrix
+    for ( b = 0; b < inf.mpi_commsize; ++b )
+    {
+        MPI_Barrier(MPI_COMM_WORLD);
+        if ( b == inf.mpi_rank )
+        {
+            for ( gptr = inf.matrix_data; gptr < inf.matrix_data + inf.matrix_slice_height; ++gptr )
+            {
+                for ( i = 0, mptr=gptr; i < inf.matrix_size; ++i, mptr+=inf.matrix_slice_height )
+                {
+                    printf("%2.0f ", *mptr);
+                }
+                printf("\n");
+            }
+        }
+    }
     
     /* MPI send */
     
@@ -130,7 +151,25 @@ int main(int argc,  char* argv[])
     /* add transpose into matrix */
 //     fprintf(stderr, "%d: Gathering sumations!\n", inf.mpi_rank);
     run_threadpool( &tpool_add_matrix, &inf, inf.pthreads_per_mpi );
-     
+    printf("\n\nMATRIX AFTER SUM\n");
+    
+    for ( b = 0; b < inf.mpi_commsize; ++b )
+    {
+        MPI_Barrier(MPI_COMM_WORLD);
+        if ( b == inf.mpi_rank )
+        {
+            for ( gptr = inf.matrix_data; gptr < inf.matrix_data + inf.matrix_slice_height; ++gptr )
+            {
+                for ( i = 0, mptr=gptr; i < inf.matrix_size; ++i, mptr+=inf.matrix_slice_height )
+                {
+                    printf("%2.0f ", *mptr);
+                }
+                printf("\n");
+            }
+        }
+    }
+    
+    
     /* File output */
     int mode = atoi( argv[3]);
 
@@ -140,6 +179,7 @@ int main(int argc,  char* argv[])
     if ( inf.mpi_rank == 0 ){
             printf("WRITE_OUT_TIME\n");
     }*/
+    /*
     //Start timer here
     MPI_Barrier( MPI_COMM_WORLD );
     if ( inf.mpi_rank == 0 ){
@@ -166,12 +206,12 @@ int main(int argc,  char* argv[])
         printf("%llu ", o_end - o_start);
     }
 
-    
+    */
     MPI_Barrier( MPI_COMM_WORLD );
   
     if ( inf.mpi_rank == 0 )
     {
-        /* more wtime stuff */
+        
         end = GetTimeBase();
         printf( "%llu\n", end-start );
     }
